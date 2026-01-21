@@ -2,29 +2,29 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ויקי-אישי | פתרון לריבוי תמונות</title>
+    <title>ויקי-אישי | גלריית תמונות</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
-        /* חיפוש */
         .search-wrapper { position: relative; margin-bottom: 30px; }
         #searchInput { width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 50px; font-size: 18px; outline: none; box-sizing: border-box; }
         .suggestions-list { position: absolute; top: 60px; left: 0; right: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; display: none; border: 1px solid #eee; }
         .suggestion-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; }
         .suggestion-item:hover { background: #f0f7ff; color: var(--accent); }
 
-        /* יצירה */
         .editor-box { background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #ddd; }
         input[type="text"], textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .btn-save { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         
-        /* תצוגה */
         #articleDisplay { display: none; }
         h2#displayTitle { font-size: 3rem; margin: 0 0 15px 0; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
-        .image-gallery { display: grid; grid-template-columns: 1fr; gap: 15px; margin: 20px 0; }
+        
+        /* גלריית תמונות */
+        .image-gallery { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
         .wiki-img { width: 100%; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        
         .article-body { font-size: 1.25rem; line-height: 1.7; white-space: pre-wrap; }
         .btn-back { background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
     </style>
@@ -41,10 +41,12 @@
         </div>
 
         <div class="editor-box">
-            <h3>ערך חדש (עם כיווץ תמונות אוטומטי)</h3>
+            <h3>צור ערך חדש</h3>
             <input type="text" id="titleInput" placeholder="כותרת הערך">
-            <label style="display:block; margin-top:10px;">בחר תמונות (אפשר כמה):</label>
+            
+            <label style="display:block; margin-top:10px;">בחר תמונות (ניתן לבחור כמה ביחד):</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
+            
             <textarea id="contentInput" rows="6" placeholder="תוכן הערך..."></textarea>
             <button class="btn-save" onclick="saveArticle()">שמור ערך</button>
         </div>
@@ -52,16 +54,15 @@
 
     <div id="articleDisplay">
         <h2 id="displayTitle"></h2>
-        <div id="displayImages" class="image-gallery"></div>
-        <div id="displayContent" class="article-body"></div>
+        <div id="displayImages" class="image-gallery"></div> <div id="displayContent" class="article-body"></div>
         <button class="btn-back" onclick="location.reload()">← חזור</button>
     </div>
 </div>
 
 <script>
-    const DB_KEY = 'wiki_v5_';
+    const DB_KEY = 'wiki_v6_';
 
-    // פונקציה חכמה לכיווץ תמונות כדי שלא יכבידו על הדפדפן
+    // פונקציית כיווץ משופרת
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -71,15 +72,13 @@
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // מקטין לרוחב של 800 פיקסלים
+                    const MAX_WIDTH = 1000; 
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
-
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    // שומר כ-JPEG באיכות 0.7 (70%) כדי לחסוך המון מקום
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // דחיסה ל-60%
                 };
             };
         });
@@ -92,21 +91,23 @@
 
         if (!title || !content) return alert("מלא כותרת ותוכן");
 
-        // מכווצים את כל התמונות שנבחרו
         const compressedImages = [];
-        for (let file of files) {
-            const compressed = await compressImage(file);
+        for (let i = 0; i < files.length; i++) {
+            const compressed = await compressImage(files[i]);
             compressedImages.push(compressed);
         }
 
-        const data = { content, images: compressedImages };
+        const dataToSave = {
+            content: content,
+            images: compressedImages // המערך המלא של התמונות
+        };
         
         try {
-            localStorage.setItem(DB_KEY + title, JSON.stringify(data));
-            alert("נשמר בהצלחה! התמונות כווצו כדי לחסוך מקום.");
+            localStorage.setItem(DB_KEY + title, JSON.stringify(dataToSave));
+            alert("הערך '" + title + "' נשמר עם " + compressedImages.length + " תמונות!");
             location.reload();
         } catch (e) {
-            alert("עדיין יש יותר מדי מידע. נסה להעלות פחות תמונות.");
+            alert("שגיאה: התמונות עדיין כבדות מדי. נסה להעלות פחות תמונות.");
         }
     }
 
@@ -135,7 +136,10 @@
     }
 
     function loadArticle(title) {
-        const data = JSON.parse(localStorage.getItem(DB_KEY + title));
+        const raw = localStorage.getItem(DB_KEY + title);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+
         document.getElementById('editor').style.display = 'none';
         document.getElementById('articleDisplay').style.display = 'block';
         document.getElementById('displayTitle').innerText = title;
@@ -143,12 +147,16 @@
         
         const gallery = document.getElementById('displayImages');
         gallery.innerHTML = '';
-        data.images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = src;
-            img.className = 'wiki-img';
-            gallery.appendChild(img);
-        });
+        
+        // לולאה שעוברת על כל התמונות במערך ומציגה אותן
+        if (data.images && data.images.length > 0) {
+            data.images.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'wiki-img';
+                gallery.appendChild(img);
+            });
+        }
     }
 </script>
 
