@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>החי והצומח של ארץ ישראל</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; }
+        :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; --success: #27ae60; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 850px; margin: auto; background: white; padding: 35px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
@@ -28,8 +28,8 @@
         
         /* כפתורי ניהול */
         .admin-controls { display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
-        .btn-admin { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-edit { background: #27ae60; }
+        .btn-admin { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; }
+        .btn-edit { background: var(--success); }
         .btn-delete { background: var(--danger); }
         .btn-back { background: #95a5a6; }
     </style>
@@ -41,7 +41,7 @@
         <h1 style="text-align: center;">החי והצומח של ארץ ישראל</h1>
         
         <div class="search-wrapper">
-            <input type="text" id="searchInput" placeholder="🔍 חפש ערך לעריכה או צפייה..." oninput="showSuggestions()">
+            <input type="text" id="searchInput" placeholder="🔍 חפש ערך..." oninput="showSuggestions()">
             <div id="suggestions" class="suggestions-list"></div>
         </div>
 
@@ -49,8 +49,9 @@
             <h3 id="formTitle">יצירת ערך חדש</h3>
             <input type="text" id="titleInput" placeholder="כותרת הערך">
             
-            <label style="display:block; margin-top:15px; font-weight:bold;">העלאת תמונות (יוצגו לפי [תמונה1] וכו'):</label>
+            <label style="display:block; margin-top:15px; font-weight:bold;">העלאת תמונות (אופציונלי):</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
+            <p style="font-size: 0.8rem; color: #666;">השתמש ב-[תמונה1], [תמונה2] וכו' בתוך הטקסט.</p>
             
             <textarea id="contentInput" rows="10" placeholder="כתוב כאן את התוכן..."></textarea>
             
@@ -64,91 +65,16 @@
         
         <div class="admin-controls">
             <button class="btn-admin btn-back" onclick="location.reload()">חזור</button>
-            <button class="btn-admin btn-edit" onclick="editArticle()">ערוך ערך</button>
-            <button class="btn-admin btn-delete" onclick="deleteArticle()">מחק ערך</button>
+            <button class="btn-admin btn-edit" onclick="editArticle()">ערוך</button>
+            <button class="btn-admin btn-delete" onclick="deleteArticle()">מחק</button>
         </div>
     </div>
 </div>
 
 <script>
-    const DB_KEY = 'wiki_v9_';
+    const DB_KEY = 'wiki_v10_';
     const ADMIN_CODE = "5439";
     let currentArticleTitle = "";
-
-    // בדיקת קוד ושמירה
-    async function checkCodeAndSave() {
-        const userCode = prompt("הזן קוד מנהל (5439) כדי לשמור:");
-        if (userCode === ADMIN_CODE) {
-            await saveArticle();
-        } else {
-            alert("קוד שגוי!");
-        }
-    }
-
-    // מחיקת ערך
-    function deleteArticle() {
-        const userCode = prompt("להקליד קוד מנהל למחיקה:");
-        if (userCode === ADMIN_CODE) {
-            if (confirm("בטוח שברצונך למחוק את '" + currentArticleTitle + "'?")) {
-                localStorage.removeItem(DB_KEY + currentArticleTitle);
-                alert("הערך נמחק.");
-                location.reload();
-            }
-        } else {
-            alert("קוד שגוי!");
-        }
-    }
-
-    // עריכת ערך
-    function editArticle() {
-        const data = JSON.parse(localStorage.getItem(DB_KEY + currentArticleTitle));
-        document.getElementById('articleDisplay').style.display = 'none';
-        document.getElementById('editor').style.display = 'block';
-        
-        document.getElementById('titleInput').value = currentArticleTitle;
-        document.getElementById('contentInput').value = data.content;
-        document.getElementById('formTitle').innerText = "עריכת ערך: " + currentArticleTitle;
-        window.scrollTo(0,0);
-    }
-
-    async function compressImage(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 900;
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH; canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
-                };
-            };
-        });
-    }
-
-    async function saveArticle() {
-        const title = document.getElementById('titleInput').value.trim();
-        const content = document.getElementById('contentInput').value.trim();
-        const files = document.getElementById('imageInput').files;
-
-        let images = [];
-        // אם לא הועלו תמונות חדשות בעריכה, ננסה לשמור על הישנות
-        if (files.length > 0) {
-            for (let file of files) images.push(await compressImage(file));
-        } else {
-            const oldData = localStorage.getItem(DB_KEY + title);
-            if (oldData) images = JSON.parse(oldData).images;
-        }
-
-        localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
-        alert("נשמר!");
-        location.reload();
-    }
 
     function showSuggestions() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -176,6 +102,41 @@
 
     function loadArticle(title) {
         currentArticleTitle = title;
-        const data = JSON.parse(localStorage.getItem(DB_KEY + title));
+        const rawData = localStorage.getItem(DB_KEY + title);
+        if (!rawData) return;
+        const data = JSON.parse(rawData);
+
         document.getElementById('editor').style.display = 'none';
         document.getElementById('articleDisplay').style.display = 'block';
+        document.getElementById('displayTitle').innerText = title;
+
+        let finalHTML = data.content;
+        if (data.images && data.images.length > 0) {
+            data.images.forEach((src, index) => {
+                const placeholder = `[תמונה${index + 1}]`;
+                finalHTML = finalHTML.split(placeholder).join(`<img src="${src}" class="embedded-img">`);
+            });
+        }
+        finalHTML = finalHTML.replace(/\n/g, '<br>');
+        document.getElementById('displayContent').innerHTML = finalHTML;
+    }
+
+    async function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 900;
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+        });
