@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>החי והצומח של ארץ ישראל</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        
+        /* חיפוש ורשימת הצעות */
+        .search-wrapper { position: relative; margin-bottom: 30px; }
+        #searchInput { background: #fff; border: 2px solid var(--accent); font-size: 18px; }
+        .suggestions-list { 
+            position: absolute; top: 55px; left: 0; right: 0; 
+            background: white; border: 1px solid #ddd; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 100; display: none;
+            max-height: 200px; overflow-y: auto;
+        }
+        .suggestion-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .suggestion-item:hover { background: #f0f7ff; color: var(--accent); }
+        .suggestion-item:last-child { border-bottom: none; }
+
+        /* כותרות ועיצוב כללי */
+        h1 { font-size: 2.5rem; color: var(--primary); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 25px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        
+        /* תצוגת הערך */
+        #articleDisplay { display: none; }
+        .wiki-image { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
+        .article-body { font-size: 1.2rem; line-height: 1.8; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="editor">
+        <h1>החי והצומח של ארץ ישראל</h1>
+        
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="🔍 חפש ערך (למשל: ישראל)..." oninput="showSuggestions()">
+            <div id="suggestions" class="suggestions-list"></div>
+        </div>
+
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px dashed #ccc;">
+            <h3>צור ערך חדש</h3>
+            <input type="text" id="titleInput" placeholder="כותרת הערך">
+            <input type="file" id="imageInput" accept="image/*">
+            <textarea id="contentInput" rows="6" placeholder="תוכן הערך..."></textarea>
+            <button class="btn" onclick="saveArticle()">שמור ערך</button>
+        </div>
+    </div>
+
+    <div id="articleDisplay">
+        <h2 id="displayTitle" style="font-size: 3rem; margin-bottom: 10px;"></h2>
+        <img id="displayImg" class="wiki-image" src="" style="display:none;">
+        <div id="displayContent" class="article-body"></div>
+        <hr>
+        <button class="btn" style="background:#95a5a6" onclick="location.reload()">חזור לחיפוש</button>
+    </div>
+</div>
+
+<script>
+    // פונקציה שמציגה הצעות בזמן הקלדה
+    function showSuggestions() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const suggestionsBox = document.getElementById('suggestions');
+        suggestionsBox.innerHTML = '';
+
+        if (query.length === 0) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+
+        // עובר על כל המפתחות בזיכרון ומחפש התאמות
+        let foundMatch = false;
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('wiki_v2_')) {
+                const title = key.replace('wiki_v2_', '');
+                if (title.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerText = title;
+                    div.onclick = () => loadArticle(title);
+                    suggestionsBox.appendChild(div);
+                    foundMatch = true;
+                }
+            }
+        }
+
+        suggestionsBox.style.display = foundMatch ? 'block' : 'none';
+    }
+
+    // טעינת ערך נבחר
+    function loadArticle(title) {
+        const rawData = localStorage.getItem('wiki_v2_' + title);
+        if (rawData) {
+            const data = JSON.parse(rawData);
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('articleDisplay').style.display = 'block';
+            document.getElementById('displayTitle').innerText = title;
+            document.getElementById('displayContent').innerText = data.content;
+            
+            const imgElement = document.getElementById('displayImg');
+            if (data.image) {
+                imgElement.src = data.image;
+                imgElement.style.display = 'block';
+            } else {
+                imgElement.style.display = 'none';
+            }
+        }
+    }
+
+    function saveArticle() {
+        const title = document.getElementById('titleInput').value.trim();
+        const content = document.getElementById('contentInput').value.trim();
+        const imageFile = document.getElementById('imageInput').files[0];
+
+        if (!title || !content) return alert("מלא כותרת ותוכן");
+
+        const saveData = (imgBase64 = null) => {
+            const articleData = { content: content, image: imgBase64 };
+            localStorage.setItem('wiki_v2_' + title, JSON.stringify(articleData));
+            alert("הערך '" + title + "' נשמר!");
+            location.reload();
+        };
+
+        if (imageFile) {
+            const reader = new FileReader();
+            reader.onload = (e) => saveData(e.target.result);
+            reader.readAsDataURL(imageFile);
+        } else {
+            saveData();
+        }
+    }
+</script>
+
+</body>
+</html>
