@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ויקי-אישי | מיקום תמונות מותאם</title>
+    <title>ויקי-אישי | מוגן בסיסמה</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
@@ -25,8 +25,6 @@
         #articleDisplay { display: none; }
         h2#displayTitle { font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid var(--accent); padding-bottom: 10px; }
         .article-body { font-size: 1.3rem; line-height: 1.8; color: #444; }
-        
-        /* עיצוב התמונה בתוך הטקסט */
         .embedded-img { display: block; max-width: 100%; height: auto; margin: 25px auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         
         .btn-back { background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; margin-top: 30px; }
@@ -36,7 +34,7 @@
 
 <div class="container">
     <div id="editor">
-        <h1 style="text-align: center;">📚 ויקי-אישי</h1>
+        <h1 style="text-align: center;">🔒 ויקי-אישי מוגן</h1>
         
         <div class="search-wrapper">
             <input type="text" id="searchInput" placeholder="🔍 חפש ערך..." oninput="showSuggestions()">
@@ -44,17 +42,17 @@
         </div>
 
         <div class="editor-box">
-            <h3>יצירת ערך עם שליטה במיקום התמונות</h3>
+            <h3>יצירת ערך חדש (נדרש קוד מנהל)</h3>
             <input type="text" id="titleInput" placeholder="כותרת הערך">
             
             <label style="display:block; margin-top:15px; font-weight:bold;">1. בחר תמונות:</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
             
             <label style="display:block; margin-top:15px; font-weight:bold;">2. כתוב תוכן:</label>
-            <p class="hint">כדי להוסיף את התמונה הראשונה כתוב <b>[תמונה1]</b>, לשנייה <b>[תמונה2]</b> וכן הלאה.</p>
-            <textarea id="contentInput" rows="12" placeholder="כאן התחיל הסיפור... [תמונה1] ואז קרה ש... [תמונה2]"></textarea>
+            <p class="hint">השתמש ב-<b>[תמונה1]</b>, <b>[תמונה2]</b> וכו' כדי לקבוע מיקום לתמונות בטקסט.</p>
+            <textarea id="contentInput" rows="10" placeholder="כתוב כאן..."></textarea>
             
-            <button class="btn-save" onclick="saveArticle()">שמור ערך</button>
+            <button class="btn-save" onclick="checkCodeAndSave()">שמור ערך</button>
         </div>
     </div>
 
@@ -66,9 +64,20 @@
 </div>
 
 <script>
-    const DB_KEY = 'wiki_v7_';
+    const DB_KEY = 'wiki_v8_';
+    const ADMIN_CODE = "5439"; // הקוד שלך
 
-    // כיווץ תמונות לחיסכון במקום
+    // פונקציית בדיקת קוד לפני שמירה
+    async function checkCodeAndSave() {
+        const userCode = prompt("הזן קוד מנהל כדי לשמור את הערך:");
+        
+        if (userCode === ADMIN_CODE) {
+            await saveArticle();
+        } else {
+            alert("קוד שגוי! אין לך הרשאה לשמור ערכים.");
+        }
+    }
+
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -104,10 +113,10 @@
 
         try {
             localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
-            alert("הערך נשמר!");
+            alert("הערך '" + title + "' נשמר בהצלחה!");
             location.reload();
         } catch (e) {
-            alert("המקום בזיכרון נגמר. נסה פחות תמונות.");
+            alert("שגיאה: הזיכרון מלא. נסה להשתמש בפחות תמונות.");
         }
     }
 
@@ -138,25 +147,18 @@
     function loadArticle(title) {
         const data = JSON.parse(localStorage.getItem(DB_KEY + title));
         document.getElementById('editor').style.display = 'none';
-        const display = document.getElementById('articleDisplay');
-        display.style.display = 'block';
+        document.getElementById('articleDisplay').style.display = 'block';
         document.getElementById('displayTitle').innerText = title;
 
         let finalHTML = data.content;
-
-        // החלפת הקודים [תמונהX] בתגיות IMG אמיתיות
         if (data.images && data.images.length > 0) {
             data.images.forEach((src, index) => {
                 const placeholder = `[תמונה${index + 1}]`;
                 const imgTag = `<img src="${src}" class="embedded-img">`;
-                // מחליף את כל המופעים של הקוד בתמונה
                 finalHTML = finalHTML.split(placeholder).join(imgTag);
             });
         }
-
-        // המרת ירידות שורה רגילות לתגיות BR כדי שהטקסט לא יהיה גוש אחד
         finalHTML = finalHTML.replace(/\n/g, '<br>');
-
         document.getElementById('displayContent').innerHTML = finalHTML;
     }
 </script>
