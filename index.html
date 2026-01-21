@@ -2,117 +2,166 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ויקי-אישי | גרסה יציבה</title>
+    <title>ויקי-אישי | מוגן בסיסמה</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; }
+        :root { --primary: #2c3e50; --accent: #3498db; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .container { max-width: 850px; margin: auto; background: white; padding: 35px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
         /* חיפוש */
-        .search-section { margin-bottom: 30px; position: relative; }
+        .search-wrapper { position: relative; margin-bottom: 30px; }
         #searchInput { width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 50px; font-size: 18px; outline: none; box-sizing: border-box; }
-        .suggestions { position: absolute; top: 60px; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 10px; z-index: 100; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .s-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
-        .s-item:hover { background: #f0f7ff; }
+        .suggestions-list { position: absolute; top: 60px; left: 0; right: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; display: none; border: 1px solid #eee; }
+        .suggestion-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .suggestion-item:hover { background: #f0f7ff; color: var(--accent); }
 
-        /* טופס */
-        .box { background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
-        .btn-save { background: var(--accent); margin-top: 10px; }
-        .btn-save:hover { background: #2980b9; }
-
-        /* תצוגה */
-        #display { display: none; }
-        .title-view { font-size: 3rem; border-bottom: 4px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; }
-        .content-view { font-size: 1.25rem; line-height: 1.8; white-space: pre-wrap; }
-        .img-view { display: block; max-width: 100%; margin: 20px auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* עריכה */
+        .editor-box { background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #ddd; }
+        input[type="text"], textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .hint { font-size: 0.9rem; color: #666; margin-top: 5px; }
+        .btn-save { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         
-        .controls { display: flex; gap: 10px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .btn-mini { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
+        /* תצוגה */
+        #articleDisplay { display: none; }
+        h2#displayTitle { font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid var(--accent); padding-bottom: 10px; }
+        .article-body { font-size: 1.3rem; line-height: 1.8; color: #444; }
+        .embedded-img { display: block; max-width: 100%; height: auto; margin: 25px auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        .btn-back { background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="editor">
-        <h1 style="text-align: center;">📚 ויקי-אישי</h1>
+        <h1 style="text-align: center;">🔒 ויקי-אישי מוגן</h1>
         
-        <div class="search-section">
-            <input type="text" id="searchInput" placeholder="🔍 חפש ערך קיים..." oninput="doSearch()">
-            <div id="suggestionsBox" class="suggestions"></div>
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="🔍 חפש ערך..." oninput="showSuggestions()">
+            <div id="suggestions" class="suggestions-list"></div>
         </div>
 
-        <div class="box">
-            <h3 id="status">צור ערך חדש</h3>
-            <input type="text" id="tInput" placeholder="כותרת">
-            <input type="file" id="fInput" accept="image/*" multiple>
-            <textarea id="cInput" rows="8" placeholder="תוכן (השתמש ב-[תמונה1] למיקום תמונה)"></textarea>
-            <button class="btn btn-save" onclick="handleSave()">שמור ערך (קוד 5439)</button>
+        <div class="editor-box">
+            <h3>יצירת ערך חדש (נדרש קוד מנהל)</h3>
+            <input type="text" id="titleInput" placeholder="כותרת הערך">
+            
+            <label style="display:block; margin-top:15px; font-weight:bold;">1. בחר תמונות:</label>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            
+            <label style="display:block; margin-top:15px; font-weight:bold;">2. כתוב תוכן:</label>
+            <p class="hint">השתמש ב-<b>[תמונה1]</b>, <b>[תמונה2]</b> וכו' כדי לקבוע מיקום לתמונות בטקסט.</p>
+            <textarea id="contentInput" rows="10" placeholder="כתוב כאן..."></textarea>
+            
+            <button class="btn-save" onclick="checkCodeAndSave()">שמור ערך</button>
         </div>
     </div>
 
-    <div id="display">
-        <h2 id="vTitle" class="title-view"></h2>
-        <div id="vContent" class="content-view"></div>
-        <div class="controls">
-            <button class="btn-mini" style="background:#95a5a6" onclick="location.reload()">חזור</button>
-            <button class="btn-mini" style="background:#27ae60" onclick="doEdit()">ערוך</button>
-            <button class="btn-mini" style="background:#e74c3c" onclick="doDelete()">מחק</button>
-        </div>
+    <div id="articleDisplay">
+        <h2 id="displayTitle"></h2>
+        <div id="displayContent" class="article-body"></div>
+        <button class="btn-back" onclick="location.reload()">← חזור לחיפוש</button>
     </div>
 </div>
 
 <script>
-    const KEY = 'WIKI_DATA_';
-    const PASS = '5439';
-    let activeTitle = "";
+    const DB_KEY = 'wiki_v8_';
+    const ADMIN_CODE = "5439"; // הקוד שלך
 
-    // חיפוש
-    function doSearch() {
-        const q = document.getElementById('searchInput').value.trim().toLowerCase();
-        const box = document.getElementById('suggestionsBox');
+    // פונקציית בדיקת קוד לפני שמירה
+    async function checkCodeAndSave() {
+        const userCode = prompt("הזן קוד מנהל כדי לשמור את הערך:");
+        
+        if (userCode === ADMIN_CODE) {
+            await saveArticle();
+        } else {
+            alert("קוד שגוי! אין לך הרשאה לשמור ערכים.");
+        }
+    }
+
+    async function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 900;
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+        });
+    }
+
+    async function saveArticle() {
+        const title = document.getElementById('titleInput').value.trim();
+        const content = document.getElementById('contentInput').value.trim();
+        const files = document.getElementById('imageInput').files;
+
+        if (!title || !content) return alert("מלא כותרת ותוכן");
+
+        const images = [];
+        for (let file of files) {
+            images.push(await compressImage(file));
+        }
+
+        try {
+            localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
+            alert("הערך '" + title + "' נשמר בהצלחה!");
+            location.reload();
+        } catch (e) {
+            alert("שגיאה: הזיכרון מלא. נסה להשתמש בפחות תמונות.");
+        }
+    }
+
+    function showSuggestions() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const box = document.getElementById('suggestions');
         box.innerHTML = '';
-        if(!q) { box.style.display='none'; return; }
+        if (!query) { box.style.display = 'none'; return; }
 
-        let found = false;
-        for(let i=0; i<localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if(k.startsWith(KEY)) {
-                const t = k.replace(KEY, '');
-                if(t.toLowerCase().includes(q)) {
-                    const d = document.createElement('div');
-                    d.className = 's-item';
-                    d.innerText = t;
-                    d.onclick = () => load(t);
-                    box.appendChild(d);
-                    found = true;
+        let count = 0;
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(DB_KEY)) {
+                const title = key.replace(DB_KEY, '');
+                if (title.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerText = title;
+                    div.onclick = () => loadArticle(title);
+                    box.appendChild(div);
+                    count++;
                 }
             }
         }
-        box.style.display = found ? 'block' : 'none';
+        box.style.display = count > 0 ? 'block' : 'none';
     }
 
-    // טעינה
-    function load(t) {
-        activeTitle = t;
-        const raw = localStorage.getItem(KEY+t);
-        const data = JSON.parse(raw);
+    function loadArticle(title) {
+        const data = JSON.parse(localStorage.getItem(DB_KEY + title));
         document.getElementById('editor').style.display = 'none';
-        document.getElementById('display').style.display = 'block';
-        document.getElementById('vTitle').innerText = t;
+        document.getElementById('articleDisplay').style.display = 'block';
+        document.getElementById('displayTitle').innerText = title;
 
-        let html = data.content;
-        if(data.imgs) {
-            data.imgs.forEach((src, i) => {
-                html = html.split(`[תמונה${i+1}]`).join(`<img src="${src}" class="img-view">`);
+        let finalHTML = data.content;
+        if (data.images && data.images.length > 0) {
+            data.images.forEach((src, index) => {
+                const placeholder = `[תמונה${index + 1}]`;
+                const imgTag = `<img src="${src}" class="embedded-img">`;
+                finalHTML = finalHTML.split(placeholder).join(imgTag);
             });
         }
-        document.getElementById('vContent').innerHTML = html.replace(/\n/g, '<br>');
+        finalHTML = finalHTML.replace(/\n/g, '<br>');
+        document.getElementById('displayContent').innerHTML = finalHTML;
     }
+</script>
 
-    // שמירה
-    async function handleSave() {
-        const t = document.getElementById('tInput').value.trim();
-        const c = document.getElementById('cInput').value.trim();
-        const files = document.getElementById('fInput').files;
+</body>
+</html>
