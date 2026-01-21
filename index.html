@@ -2,31 +2,34 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ויקי-אישי | גלריית תמונות</title>
+    <title>ויקי-אישי | מיקום תמונות מותאם</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .container { max-width: 850px; margin: auto; background: white; padding: 35px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
+        /* חיפוש */
         .search-wrapper { position: relative; margin-bottom: 30px; }
         #searchInput { width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 50px; font-size: 18px; outline: none; box-sizing: border-box; }
         .suggestions-list { position: absolute; top: 60px; left: 0; right: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; display: none; border: 1px solid #eee; }
         .suggestion-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; }
         .suggestion-item:hover { background: #f0f7ff; color: var(--accent); }
 
+        /* עריכה */
         .editor-box { background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #ddd; }
-        input[type="text"], textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        input[type="text"], textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .hint { font-size: 0.9rem; color: #666; margin-top: 5px; }
         .btn-save { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         
+        /* תצוגה */
         #articleDisplay { display: none; }
-        h2#displayTitle { font-size: 3rem; margin: 0 0 15px 0; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2#displayTitle { font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid var(--accent); padding-bottom: 10px; }
+        .article-body { font-size: 1.3rem; line-height: 1.8; color: #444; }
         
-        /* גלריית תמונות */
-        .image-gallery { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
-        .wiki-img { width: 100%; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        /* עיצוב התמונה בתוך הטקסט */
+        .embedded-img { display: block; max-width: 100%; height: auto; margin: 25px auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         
-        .article-body { font-size: 1.25rem; line-height: 1.7; white-space: pre-wrap; }
-        .btn-back { background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        .btn-back { background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; margin-top: 30px; }
     </style>
 </head>
 <body>
@@ -41,44 +44,47 @@
         </div>
 
         <div class="editor-box">
-            <h3>צור ערך חדש</h3>
+            <h3>יצירת ערך עם שליטה במיקום התמונות</h3>
             <input type="text" id="titleInput" placeholder="כותרת הערך">
             
-            <label style="display:block; margin-top:10px;">בחר תמונות (ניתן לבחור כמה ביחד):</label>
+            <label style="display:block; margin-top:15px; font-weight:bold;">1. בחר תמונות:</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
             
-            <textarea id="contentInput" rows="6" placeholder="תוכן הערך..."></textarea>
+            <label style="display:block; margin-top:15px; font-weight:bold;">2. כתוב תוכן:</label>
+            <p class="hint">כדי להוסיף את התמונה הראשונה כתוב <b>[תמונה1]</b>, לשנייה <b>[תמונה2]</b> וכן הלאה.</p>
+            <textarea id="contentInput" rows="12" placeholder="כאן התחיל הסיפור... [תמונה1] ואז קרה ש... [תמונה2]"></textarea>
+            
             <button class="btn-save" onclick="saveArticle()">שמור ערך</button>
         </div>
     </div>
 
     <div id="articleDisplay">
         <h2 id="displayTitle"></h2>
-        <div id="displayImages" class="image-gallery"></div> <div id="displayContent" class="article-body"></div>
-        <button class="btn-back" onclick="location.reload()">← חזור</button>
+        <div id="displayContent" class="article-body"></div>
+        <button class="btn-back" onclick="location.reload()">← חזור לחיפוש</button>
     </div>
 </div>
 
 <script>
-    const DB_KEY = 'wiki_v6_';
+    const DB_KEY = 'wiki_v7_';
 
-    // פונקציית כיווץ משופרת
+    // כיווץ תמונות לחיסכון במקום
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = (event) => {
+            reader.onload = (e) => {
                 const img = new Image();
-                img.src = event.target.result;
+                img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1000; 
-                    const scaleSize = MAX_WIDTH / img.width;
+                    const MAX_WIDTH = 900;
+                    const scale = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
+                    canvas.height = img.height * scale;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // דחיסה ל-60%
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
                 };
             };
         });
@@ -91,23 +97,17 @@
 
         if (!title || !content) return alert("מלא כותרת ותוכן");
 
-        const compressedImages = [];
-        for (let i = 0; i < files.length; i++) {
-            const compressed = await compressImage(files[i]);
-            compressedImages.push(compressed);
+        const images = [];
+        for (let file of files) {
+            images.push(await compressImage(file));
         }
 
-        const dataToSave = {
-            content: content,
-            images: compressedImages // המערך המלא של התמונות
-        };
-        
         try {
-            localStorage.setItem(DB_KEY + title, JSON.stringify(dataToSave));
-            alert("הערך '" + title + "' נשמר עם " + compressedImages.length + " תמונות!");
+            localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
+            alert("הערך נשמר!");
             location.reload();
         } catch (e) {
-            alert("שגיאה: התמונות עדיין כבדות מדי. נסה להעלות פחות תמונות.");
+            alert("המקום בזיכרון נגמר. נסה פחות תמונות.");
         }
     }
 
@@ -136,27 +136,28 @@
     }
 
     function loadArticle(title) {
-        const raw = localStorage.getItem(DB_KEY + title);
-        if (!raw) return;
-        const data = JSON.parse(raw);
-
+        const data = JSON.parse(localStorage.getItem(DB_KEY + title));
         document.getElementById('editor').style.display = 'none';
-        document.getElementById('articleDisplay').style.display = 'block';
+        const display = document.getElementById('articleDisplay');
+        display.style.display = 'block';
         document.getElementById('displayTitle').innerText = title;
-        document.getElementById('displayContent').innerText = data.content;
-        
-        const gallery = document.getElementById('displayImages');
-        gallery.innerHTML = '';
-        
-        // לולאה שעוברת על כל התמונות במערך ומציגה אותן
+
+        let finalHTML = data.content;
+
+        // החלפת הקודים [תמונהX] בתגיות IMG אמיתיות
         if (data.images && data.images.length > 0) {
-            data.images.forEach(src => {
-                const img = document.createElement('img');
-                img.src = src;
-                img.className = 'wiki-img';
-                gallery.appendChild(img);
+            data.images.forEach((src, index) => {
+                const placeholder = `[תמונה${index + 1}]`;
+                const imgTag = `<img src="${src}" class="embedded-img">`;
+                // מחליף את כל המופעים של הקוד בתמונה
+                finalHTML = finalHTML.split(placeholder).join(imgTag);
             });
         }
+
+        // המרת ירידות שורה רגילות לתגיות BR כדי שהטקסט לא יהיה גוש אחד
+        finalHTML = finalHTML.replace(/\n/g, '<br>');
+
+        document.getElementById('displayContent').innerHTML = finalHTML;
     }
 </script>
 
