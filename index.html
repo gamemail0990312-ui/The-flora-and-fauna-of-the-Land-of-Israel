@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>החי והצומח של ארץ ישראל</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; }
+        :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 850px; margin: auto; background: white; padding: 35px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
@@ -18,16 +18,20 @@
         /* עריכה */
         .editor-box { background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #ddd; }
         input[type="text"], textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .hint { font-size: 0.9rem; color: #666; margin-top: 5px; }
         .btn-save { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         
         /* תצוגה */
         #articleDisplay { display: none; }
         h2#displayTitle { font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid var(--accent); padding-bottom: 10px; }
-        .article-body { font-size: 1.3rem; line-height: 1.8; color: #444; }
+        .article-body { font-size: 1.3rem; line-height: 1.8; color: #444; margin-bottom: 30px; }
         .embedded-img { display: block; max-width: 100%; height: auto; margin: 25px auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         
-        .btn-back { background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; margin-top: 30px; }
+        /* כפתורי ניהול */
+        .admin-controls { display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .btn-admin { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-edit { background: #27ae60; }
+        .btn-delete { background: var(--danger); }
+        .btn-back { background: #95a5a6; }
     </style>
 </head>
 <body>
@@ -37,20 +41,18 @@
         <h1 style="text-align: center;">החי והצומח של ארץ ישראל</h1>
         
         <div class="search-wrapper">
-            <input type="text" id="searchInput" placeholder="🔍 חפש ערך..." oninput="showSuggestions()">
+            <input type="text" id="searchInput" placeholder="🔍 חפש ערך לעריכה או צפייה..." oninput="showSuggestions()">
             <div id="suggestions" class="suggestions-list"></div>
         </div>
 
         <div class="editor-box">
-            <h3>יצירת ערך חדש (נדרש קוד מנהל)</h3>
+            <h3 id="formTitle">יצירת ערך חדש</h3>
             <input type="text" id="titleInput" placeholder="כותרת הערך">
             
-            <label style="display:block; margin-top:15px; font-weight:bold;">1. בחר תמונות:</label>
+            <label style="display:block; margin-top:15px; font-weight:bold;">העלאת תמונות (יוצגו לפי [תמונה1] וכו'):</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
             
-            <label style="display:block; margin-top:15px; font-weight:bold;">2. כתוב תוכן:</label>
-            <p class="hint">השתמש ב-<b>[תמונה1]</b>, <b>[תמונה2]</b> וכו' כדי לקבוע מיקום לתמונות בטקסט.</p>
-            <textarea id="contentInput" rows="10" placeholder="כתוב כאן..."></textarea>
+            <textarea id="contentInput" rows="10" placeholder="כתוב כאן את התוכן..."></textarea>
             
             <button class="btn-save" onclick="checkCodeAndSave()">שמור ערך</button>
         </div>
@@ -59,23 +61,54 @@
     <div id="articleDisplay">
         <h2 id="displayTitle"></h2>
         <div id="displayContent" class="article-body"></div>
-        <button class="btn-back" onclick="location.reload()">← חזור לחיפוש</button>
+        
+        <div class="admin-controls">
+            <button class="btn-admin btn-back" onclick="location.reload()">חזור</button>
+            <button class="btn-admin btn-edit" onclick="editArticle()">ערוך ערך</button>
+            <button class="btn-admin btn-delete" onclick="deleteArticle()">מחק ערך</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const DB_KEY = 'wiki_v8_';
-    const ADMIN_CODE = "5439"; // הקוד שלך
+    const DB_KEY = 'wiki_v9_';
+    const ADMIN_CODE = "5439";
+    let currentArticleTitle = "";
 
-    // פונקציית בדיקת קוד לפני שמירה
+    // בדיקת קוד ושמירה
     async function checkCodeAndSave() {
-        const userCode = prompt("הזן קוד מנהל כדי לשמור את הערך:");
-        
+        const userCode = prompt("הזן קוד מנהל (5439) כדי לשמור:");
         if (userCode === ADMIN_CODE) {
             await saveArticle();
         } else {
-            alert("קוד שגוי! אין לך הרשאה לשמור ערכים.");
+            alert("קוד שגוי!");
         }
+    }
+
+    // מחיקת ערך
+    function deleteArticle() {
+        const userCode = prompt("להקליד קוד מנהל למחיקה:");
+        if (userCode === ADMIN_CODE) {
+            if (confirm("בטוח שברצונך למחוק את '" + currentArticleTitle + "'?")) {
+                localStorage.removeItem(DB_KEY + currentArticleTitle);
+                alert("הערך נמחק.");
+                location.reload();
+            }
+        } else {
+            alert("קוד שגוי!");
+        }
+    }
+
+    // עריכת ערך
+    function editArticle() {
+        const data = JSON.parse(localStorage.getItem(DB_KEY + currentArticleTitle));
+        document.getElementById('articleDisplay').style.display = 'none';
+        document.getElementById('editor').style.display = 'block';
+        
+        document.getElementById('titleInput').value = currentArticleTitle;
+        document.getElementById('contentInput').value = data.content;
+        document.getElementById('formTitle').innerText = "עריכת ערך: " + currentArticleTitle;
+        window.scrollTo(0,0);
     }
 
     async function compressImage(file) {
@@ -89,8 +122,7 @@
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 900;
                     const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scale;
+                    canvas.width = MAX_WIDTH; canvas.height = img.height * scale;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', 0.7));
@@ -104,20 +136,18 @@
         const content = document.getElementById('contentInput').value.trim();
         const files = document.getElementById('imageInput').files;
 
-        if (!title || !content) return alert("מלא כותרת ותוכן");
-
-        const images = [];
-        for (let file of files) {
-            images.push(await compressImage(file));
+        let images = [];
+        // אם לא הועלו תמונות חדשות בעריכה, ננסה לשמור על הישנות
+        if (files.length > 0) {
+            for (let file of files) images.push(await compressImage(file));
+        } else {
+            const oldData = localStorage.getItem(DB_KEY + title);
+            if (oldData) images = JSON.parse(oldData).images;
         }
 
-        try {
-            localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
-            alert("הערך '" + title + "' נשמר בהצלחה!");
-            location.reload();
-        } catch (e) {
-            alert("שגיאה: הזיכרון מלא. נסה להשתמש בפחות תמונות.");
-        }
+        localStorage.setItem(DB_KEY + title, JSON.stringify({ content, images }));
+        alert("נשמר!");
+        location.reload();
     }
 
     function showSuggestions() {
@@ -145,24 +175,7 @@
     }
 
     function loadArticle(title) {
+        currentArticleTitle = title;
         const data = JSON.parse(localStorage.getItem(DB_KEY + title));
         document.getElementById('editor').style.display = 'none';
         document.getElementById('articleDisplay').style.display = 'block';
-        document.getElementById('displayTitle').innerText = title;
-
-        let finalHTML = data.content;
-        if (data.images && data.images.length > 0) {
-            data.images.forEach((src, index) => {
-                const placeholder = `[תמונה${index + 1}]`;
-                const imgTag = `<img src="${src}" class="embedded-img">`;
-                finalHTML = finalHTML.split(placeholder).join(imgTag);
-            });
-        }
-        finalHTML = finalHTML.replace(/\n/g, '<br>');
-        document.getElementById('displayContent').innerHTML = finalHTML;
-    }
-</script>
-
-</body>
-</html>
-
