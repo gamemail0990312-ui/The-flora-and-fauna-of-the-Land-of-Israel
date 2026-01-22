@@ -2,79 +2,69 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ויקי-אישי | הגרסה המפורטת והמלאה</title>
+    <title>החי והצומח של ארץ ישראל | אנציקלופדיה אישית</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; --success: #27ae60; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; line-height: 1.6; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        :root { --primary: #2e7d32; --accent: #81c784; --danger: #c62828; --bg: #f1f8e9; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1b5e20; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        /* חיפוש וניווט */
-        .search-section { background: #ebf3f9; padding: 20px; border-radius: 15px; margin-bottom: 30px; }
-        #searchInput { width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 10px; font-size: 18px; outline: none; }
-        .suggestions-box { background: white; border: 1px solid #ccc; margin-top: 5px; border-radius: 8px; display: none; }
+        /* כותרות ועיצוב כללי */
+        h1 { text-align: center; color: var(--primary); font-size: 2.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .search-section { background: #f9fdf9; padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #e8f5e9; }
+        #searchInput { width: 100%; padding: 15px; border: 2px solid var(--primary); border-radius: 10px; font-size: 18px; outline: none; }
+        
+        /* תוצאות חיפוש */
+        .suggestions-box { background: white; border: 1px solid #ccc; margin-top: 5px; border-radius: 8px; display: none; overflow: hidden; }
         .suggestion-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: bold; }
-        .suggestion-item:hover { background: #f0f7ff; color: var(--accent); }
+        .suggestion-item:hover { background: var(--bg); color: var(--primary); }
 
         /* אזור העריכה */
-        .editor-section { border: 2px solid #eee; padding: 25px; border-radius: 15px; background: #fafafa; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; }
-        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        textarea { resize: vertical; }
+        .editor-section { border: 2px solid #e8f5e9; padding: 25px; border-radius: 15px; background: #ffffff; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; }
         
         /* כפתורים */
-        .main-btn { width: 100%; padding: 18px; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
-        .btn-save { background: var(--accent); box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
-        .btn-save:hover { background: #2980b9; transform: translateY(-2px); }
+        .main-btn { width: 100%; padding: 18px; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; color: white; background: var(--primary); transition: 0.3s; }
+        .main-btn:hover { background: #1b5e20; filter: brightness(1.1); }
         
-        /* אזור התצוגה */
-        #articleDisplay { display: none; animation: fadeIn 0.5s; }
-        h1.display-title { font-size: 3.5rem; color: var(--primary); border-bottom: 5px solid var(--accent); padding-bottom: 10px; margin-top: 0; }
-        .display-content { font-size: 1.4rem; color: #444; white-space: pre-wrap; margin: 30px 0; }
-        .wiki-image { display: block; max-width: 100%; height: auto; margin: 30px auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        /* הצגת ערך */
+        #articleDisplay { display: none; }
+        .display-title { font-size: 3rem; color: var(--primary); border-right: 8px solid var(--primary); padding-right: 15px; margin-bottom: 20px; }
+        .display-content { font-size: 1.3rem; line-height: 1.8; white-space: pre-wrap; color: #333; }
+        .wiki-image { display: block; max-width: 100%; height: auto; margin: 30px auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        /* כלי ניהול בתחתית */
-        .admin-bar { display: flex; gap: 15px; margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; }
-        .admin-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; }
+        .admin-bar { display: flex; gap: 10px; margin-top: 40px; }
+        .admin-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-back { background: #607d8b; }
+        .btn-edit { background: #ffa000; }
         .btn-delete { background: var(--danger); }
-        .btn-edit { background: var(--success); }
-        .btn-back { background: #7f8c8d; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="editorScreen">
-        <h1 style="text-align: center; color: var(--primary);">📚 מערכת ויקי-אישי</h1>
+        <h1>🌿 החי והצומח של ארץ ישראל</h1>
         
         <div class="search-section">
-            <label>חפש ערך קיים:</label>
-            <input type="text" id="searchInput" placeholder="הקלד שם של ערך..." oninput="handleSearch()">
+            <label>🔍 חפש צמח או בעל חיים:</label>
+            <input type="text" id="searchInput" placeholder="הקלד שם (למשל: אירוס הגלבוע)..." oninput="handleSearch()">
             <div id="suggestionsBox" class="suggestions-box"></div>
         </div>
 
         <div class="editor-section">
-            <h2 id="formHeader">יצירת ערך חדש</h2>
+            <h2 id="formHeader">הוספת ערך חדש לאנציקלופדיה</h2>
             
-            <div class="input-group">
-                <label>כותרת הערך:</label>
-                <input type="text" id="titleInput" placeholder="למשל: מדינת ישראל">
-            </div>
+            <label>שם הערך (חייב להיות ייחודי):</label>
+            <input type="text" id="titleInput" placeholder="שם הצמח או בעל החיים">
 
-            <div class="input-group">
-                <label>העלאת תמונות:</label>
-                <input type="file" id="imageInput" accept="image/*" multiple>
-                <p style="font-size: 0.9rem; color: #666;">ניתן לבחור מספר תמונות. בטקסט כתוב [תמונה1] למיקום התמונה הראשונה.</p>
-            </div>
+            <label>העלאת תמונות:</label>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            
+            <label>תיאור ומידע:</label>
+            <textarea id="contentInput" rows="10" placeholder="כתוב כאן מידע על אזורי מחיה, פריחה, מאפיינים..."></textarea>
 
-            <div class="input-group">
-                <label>תוכן הערך:</label>
-                <textarea id="contentInput" rows="12" placeholder="כתוב כאן את כל המידע..."></textarea>
-            </div>
-
-            <button class="main-btn btn-save" onclick="startSavingProcess()">💾 שמור ערך (דורש קוד )</button>
+            <button class="main-btn" onclick="processSave()">שמור ערך במערכת</button>
         </div>
     </div>
 
@@ -83,190 +73,130 @@
         <div id="displayContent" class="display-content"></div>
         
         <div class="admin-bar">
-            <button class="admin-btn btn-back" onclick="window.location.reload()">חזור לחיפוש</button>
-            <button class="admin-btn btn-edit" onclick="initEditMode()">ערוך ערך ✏️</button>
-            <button class="admin-btn btn-delete" onclick="initDeleteMode()">מחק ערך 🗑️</button>
+            <button class="admin-btn btn-back" onclick="window.location.reload()">חזור לדף הראשי</button>
+            <button class="admin-btn btn-edit" onclick="runEdit()">עריכה</button>
+            <button class="admin-btn btn-delete" onclick="runDelete()">מחיקה</button>
         </div>
     </div>
 </div>
 
 <script>
-    // הגדרות קבועות
-    const DB_PREFIX = 'WIKI_PRO_';
-    const ADMIN_PASSWORD = "5439";
-    let currentViewingTitle = "";
+    const DB_PREFIX = 'ISRAEL_NATURE_';
+    const CODE = "5439";
+    let activeTitle = "";
+    let isEditMode = false;
 
-    // 1. פונקציית החיפוש
+    // חיפוש
     function handleSearch() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
         const box = document.getElementById('suggestionsBox');
         box.innerHTML = '';
+        if (!q) { box.style.display = 'none'; return; }
 
-        if (query === '') {
-            box.style.display = 'none';
-            return;
-        }
-
-        let matchCount = 0;
+        let found = false;
         for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.startsWith(DB_PREFIX)) {
-                const title = key.replace(DB_PREFIX, '');
-                if (title.toLowerCase().includes(query)) {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.innerText = title;
-                    item.onclick = function() { displayArticle(title); };
-                    box.appendChild(item);
-                    matchCount++;
+            const k = localStorage.key(i);
+            if (k.startsWith(DB_PREFIX)) {
+                const t = k.replace(DB_PREFIX, '');
+                if (t.toLowerCase().includes(q)) {
+                    const d = document.createElement('div');
+                    d.className = 'suggestion-item';
+                    d.innerText = t;
+                    d.onclick = () => { displayArticle(t); };
+                    box.appendChild(d);
+                    found = true;
                 }
             }
         }
-        box.style.display = matchCount > 0 ? 'block' : 'none';
+        box.style.display = found ? 'block' : 'none';
     }
 
-    // 2. פונקציית הצגת הערך
-    function displayArticle(title) {
-        currentViewingTitle = title;
-        const rawData = localStorage.getItem(DB_PREFIX + title);
-        const data = JSON.parse(rawData);
-
+    // הצגה
+    function displayArticle(t) {
+        activeTitle = t;
+        const data = JSON.parse(localStorage.getItem(DB_PREFIX + t));
         document.getElementById('editorScreen').style.display = 'none';
         document.getElementById('articleDisplay').style.display = 'block';
-        document.getElementById('displayTitle').innerText = title;
+        document.getElementById('displayTitle').innerText = t;
 
-        let formattedText = data.content;
-        
-        // החלפת קודי תמונות
-        if (data.images && data.images.length > 0) {
-            for (let i = 0; i < data.images.length; i++) {
-                const placeholder = "[תמונה" + (i + 1) + "]";
-                const imageTag = '<img src="' + data.images[i] + '" class="wiki-image">';
-                formattedText = formattedText.split(placeholder).join(imageTag);
-            }
+        let txt = data.content;
+        if (data.imgs) {
+            data.imgs.forEach((src, i) => {
+                txt = txt.split(`[תמונה${i+1}]`).join(`<img src="${src}" class="wiki-image">`);
+            });
         }
-
-        // טיפול בירידות שורה
-        formattedText = formattedText.replace(/\n/g, '<br>');
-        document.getElementById('displayContent').innerHTML = formattedText;
+        document.getElementById('displayContent').innerHTML = txt.replace(/\n/g, '<br>');
     }
 
-    // 3. תהליך השמירה המפורט
-    async function startSavingProcess() {
-        const title = document.getElementById('titleInput').value.trim();
-        const content = document.getElementById('contentInput').value.trim();
-        const imageFiles = document.getElementById('imageInput').files;
+    // שמירה עם הגנה משמות כפולים
+    async function processSave() {
+        const t = document.getElementById('titleInput').value.trim();
+        const c = document.getElementById('contentInput').value.trim();
+        const files = document.getElementById('imageInput').files;
 
-        // בדיקות בסיסיות
-        if (title === "" || content === "") {
-            alert("שגיאה: חייבים למלא גם כותרת וגם תוכן.");
+        if (!t || !c) return alert("נא למלא שם ותוכן");
+
+        // בדיקה אם השם קיים (רק אם אנחנו לא במצב עריכה של אותו ערך)
+        if (!isEditMode && localStorage.getItem(DB_PREFIX + t)) {
+            alert("שגיאה: כבר קיים ערך בשם זה. בחר שם אחר או ערוך את הערך הקיים.");
             return;
         }
 
-        // בדיקת קוד מנהל
-        const passwordGuess = prompt("הזן קוד מנהל לאישור השמירה:");
-        if (passwordGuess !== ADMIN_PASSWORD) {
-            alert("קוד שגוי! השמירה בוטלה.");
-            return;
+        const pass = prompt("הזן קוד הרשאה לביצוע הפעולה:");
+        if (pass !== CODE) return alert("קוד שגוי");
+
+        let imgs = [];
+        if (files.length > 0) {
+            for (let f of files) imgs.push(await compress(f));
+        } else if (isEditMode) {
+            imgs = JSON.parse(localStorage.getItem(DB_PREFIX + t)).imgs;
         }
 
-        // עיבוד תמונות
-        let processedImages = [];
-        if (imageFiles.length > 0) {
-            alert("מעבד " + imageFiles.length + " תמונות, אנא המתן...");
-            for (let i = 0; i < imageFiles.length; i++) {
-                const base64Image = await compressImageFile(imageFiles[i]);
-                processedImages.push(base64Image);
-            }
-        } else {
-            // אם אנחנו בעריכה ולא העלנו תמונות חדשות, ננסה לשמור על הישנות
-            const existingData = localStorage.getItem(DB_PREFIX + title);
-            if (existingData) {
-                processedImages = JSON.parse(existingData).images;
-            }
-        }
-
-        // בניית האובייקט הסופי
-        const finalArticleObject = {
-            content: content,
-            images: processedImages,
-            lastUpdated: new Date().getTime()
-        };
-
-        // ניסיון שמירה לזיכרון
         try {
-            localStorage.setItem(DB_PREFIX + title, JSON.stringify(finalArticleObject));
-            alert("הערך '" + title + "' נשמר בהצלחה במערכת!");
-            window.location.reload(); // רענון הדף לסנכרון
-        } catch (error) {
-            console.error(error);
-            alert("שגיאה קריטית: לא ניתן לשמור. כנראה שהתמונות גדולות מדי לזיכרון הדפדפן.");
+            localStorage.setItem(DB_PREFIX + t, JSON.stringify({ content: c, imgs: imgs }));
+            alert("הערך נשמר בהצלחה!");
+            window.location.reload();
+        } catch (e) { alert("חריגה מהזיכרון - צמצם בתמונות"); }
+    }
+
+    function runEdit() {
+        if (prompt("קוד מנהל לעריכה:") !== CODE) return alert("קוד שגוי");
+        isEditMode = true;
+        const data = JSON.parse(localStorage.getItem(DB_PREFIX + activeTitle));
+        document.getElementById('articleDisplay').style.display = 'none';
+        document.getElementById('editorScreen').style.display = 'block';
+        document.getElementById('titleInput').value = activeTitle;
+        document.getElementById('titleInput').disabled = true; // מונע שינוי שם בעריכה למניעת כפילויות
+        document.getElementById('contentInput').value = data.content;
+        document.getElementById('formHeader').innerText = "עריכת ערך: " + activeTitle;
+    }
+
+    function runDelete() {
+        if (prompt("קוד מנהל למחיקה:") !== CODE) return alert("קוד שגוי");
+        if (confirm("למחוק את " + activeTitle + "?")) {
+            localStorage.removeItem(DB_PREFIX + activeTitle);
+            window.location.reload();
         }
     }
 
-    // 4. פונקציית כיווץ תמונות מפורטת
-    function compressImageFile(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function(event) {
+    function compress(file) {
+        return new Promise(res => {
+            const r = new FileReader();
+            r.readAsDataURL(file);
+            r.onload = e => {
                 const img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
+                img.src = e.target.result;
+                img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // גודל מקסימלי לרוחב
-                    const scaleFactor = MAX_WIDTH / img.width;
-                    
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleFactor;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    // המרה לפורמט JPEG עם איכות של 60% לחסכון במקום
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
-                    resolve(compressedDataUrl);
-                };
-            };
+                    const w = 800;
+                    canvas.width = w;
+                    canvas.height = img.height * (w / img.width);
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, canvas.height);
+                    res(canvas.toDataURL('image/jpeg', 0.6));
+                }
+            }
         });
     }
-
-    // 5. ניהול מחיקה
-    function initDeleteMode() {
-        const pass = prompt("הזן קוד מנהל למחיקת הערך:");
-        if (pass === ADMIN_PASSWORD) {
-            if (confirm("האם אתה בטוח שברצונך למחוק את '" + currentViewingTitle + "'? פעולה זו אינה הפיכה.")) {
-                localStorage.removeItem(DB_PREFIX + currentViewingTitle);
-                alert("הערך נמחק.");
-                window.location.reload();
-            }
-        } else {
-            alert("קוד שגוי.");
-        }
-    }
-
-    // 6. ניהול עריכה
-    function initEditMode() {
-        const pass = prompt("הזן קוד מנהל לעריכת הערך:");
-        if (pass === ADMIN_PASSWORD) {
-            const rawData = localStorage.getItem(DB_PREFIX + currentViewingTitle);
-            const data = JSON.parse(rawData);
-
-            document.getElementById('articleDisplay').style.display = 'none';
-            document.getElementById('editorScreen').style.display = 'block';
-
-            document.getElementById('titleInput').value = currentViewingTitle;
-            document.getElementById('contentInput').value = data.content;
-            document.getElementById('formHeader').innerText = "עריכת ערך קיים";
-            
-            window.scrollTo(0, 0);
-        } else {
-            alert("קוד שגוי.");
-        }
-    }
 </script>
-
 </body>
 </html>
-
-
