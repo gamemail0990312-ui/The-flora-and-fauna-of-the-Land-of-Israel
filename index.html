@@ -2,201 +2,440 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>החי והצומח של ארץ ישראל | אנציקלופדיה אישית</title>
+    <title>אנציקלופדיית החי והצומח של ארץ ישראל - גרסה מלאה</title>
     <style>
-        :root { --primary: #2e7d32; --accent: #81c784; --danger: #c62828; --bg: #f1f8e9; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1b5e20; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        
-        /* כותרות ועיצוב כללי */
-        h1 { text-align: center; color: var(--primary); font-size: 2.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
-        .search-section { background: #f9fdf9; padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #e8f5e9; }
-        #searchInput { width: 100%; padding: 15px; border: 2px solid var(--primary); border-radius: 10px; font-size: 18px; outline: none; }
-        
-        /* תוצאות חיפוש */
-        .suggestions-box { background: white; border: 1px solid #ccc; margin-top: 5px; border-radius: 8px; display: none; overflow: hidden; }
-        .suggestion-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: bold; }
-        .suggestion-item:hover { background: var(--bg); color: var(--primary); }
+        /* עיצוב CSS מפורט ומורחב */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #e8f5e9; /* ירוק בהיר מאוד */
+            margin: 0;
+            padding: 20px;
+            color: #2e7d32;
+        }
 
-        /* אזור העריכה */
-        .editor-section { border: 2px solid #e8f5e9; padding: 25px; border-radius: 15px; background: #ffffff; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
-        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; }
-        
-        /* כפתורים */
-        .main-btn { width: 100%; padding: 18px; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; color: white; background: var(--primary); transition: 0.3s; }
-        .main-btn:hover { background: #1b5e20; filter: brightness(1.1); }
-        
-        /* הצגת ערך */
-        #articleDisplay { display: none; }
-        .display-title { font-size: 3rem; color: var(--primary); border-right: 8px solid var(--primary); padding-right: 15px; margin-bottom: 20px; }
-        .display-content { font-size: 1.3rem; line-height: 1.8; white-space: pre-wrap; color: #333; }
-        .wiki-image { display: block; max-width: 100%; height: auto; margin: 30px auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        .admin-bar { display: flex; gap: 10px; margin-top: 40px; }
-        .admin-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-back { background: #607d8b; }
-        .btn-edit { background: #ffa000; }
-        .btn-delete { background: var(--danger); }
+        .main-wrapper {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border: 3px solid #2e7d32;
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 45px;
+            color: #1b5e20;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #558b2f;
+        }
+
+        /* סקציית החיפוש */
+        .search-container {
+            background-color: #f1f8e9;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 50px;
+            border: 1px dashed #2e7d32;
+        }
+
+        .search-label {
+            font-weight: bold;
+            font-size: 20px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #a5d6a7;
+            border-radius: 12px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #2e7d32;
+            background-color: #fff;
+        }
+
+        .dropdown-results {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .dropdown-item {
+            padding: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #c8e6c9;
+            padding-right: 25px;
+        }
+
+        /* טופס הוספה מורחב */
+        .editor-section {
+            border-top: 2px solid #eee;
+            padding-top: 40px;
+        }
+
+        .form-title {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #388e3c;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .textarea-field {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #a5d6a7;
+            border-radius: 12px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            background-color: #2e7d32;
+            color: #fff;
+            padding: 20px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #1b5e20;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* תצוגת הערך */
+        #viewScreen {
+            display: none;
+        }
+
+        .article-header {
+            font-size: 55px;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            border-bottom: 5px solid #81c784;
+            display: inline-block;
+        }
+
+        .article-body {
+            font-size: 22px;
+            line-height: 1.9;
+            color: #333;
+            margin-top: 30px;
+            text-align: justify;
+        }
+
+        .article-img {
+            display: block;
+            max-width: 90%;
+            margin: 40px auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 5px solid white;
+        }
+
+        .admin-controls {
+            margin-top: 60px;
+            display: flex;
+            gap: 20px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="editorScreen">
-        <h1>🌿 החי והצומח של ארץ ישראל</h1>
-        
-        <div class="search-section">
-            <label>🔍 חפש צמח או בעל חיים:</label>
-            <input type="text" id="searchInput" placeholder="הקלד שם (למשל: אירוס הגלבוע)..." oninput="handleSearch()">
-            <div id="suggestionsBox" class="suggestions-box"></div>
-        </div>
+<div class="main-wrapper">
+    <div id="mainScreen">
+        <header>
+            <h1>🌿 אנציקלופדיית ארץ ישראל</h1>
+            <p class="intro-text">החי, הצומח והטבע של ארצנו במקום אחד</p>
+        </header>
 
-        <div class="editor-section">
-            <h2 id="formHeader">הוספת ערך חדש לאנציקלופדיה</h2>
+        <section class="search-container">
+            <label class="search-label">חפש ערך קיים (למשל: שושן צחור, נמר המדבר):</label>
+            <input type="text" id="mainSearchInput" class="input-field" placeholder="התחל להקליד שם..." oninput="runDetailedSearch()">
+            <div id="searchDropdown" class="dropdown-results"></div>
+        </section>
+
+        <section class="editor-section">
+            <h2 id="editorHeading" class="form-title">הוספת ערך חדש לאנציקלופדיה</h2>
             
-            <label>שם הערך (חייב להיות ייחודי):</label>
-            <input type="text" id="titleInput" placeholder="שם הצמח או בעל החיים">
+            <div class="form-group">
+                <label>שם הצמח או בעל החיים (ייחודי):</label>
+                <input type="text" id="articleTitleInput" class="input-field" placeholder="הזן שם מלא...">
+            </div>
 
-            <label>העלאת תמונות:</label>
-            <input type="file" id="imageInput" accept="image/*" multiple>
-            
-            <label>תיאור ומידע:</label>
-            <textarea id="contentInput" rows="10" placeholder="כתוב כאן מידע על אזורי מחיה, פריחה, מאפיינים..."></textarea>
+            <div class="form-group">
+                <label>העלאת תמונות (ניתן לבחור מספר קבצים):</label>
+                <input type="file" id="articleImagesInput" class="input-field" accept="image/*" multiple>
+            </div>
 
-            <button class="main-btn" onclick="processSave()">שמור ערך במערכת</button>
-        </div>
+            <div class="form-group">
+                <label>תיאור, מידע ונתונים:</label>
+                <textarea id="articleContentInput" class="textarea-field" placeholder="כתוב כאן על תפוצה, מאפיינים, עונת פריחה..."></textarea>
+                <p style="font-size: 14px; color: #666;">טיפ: כתוב [תמונה1] בתוך הטקסט כדי למקם את התמונה הראשונה שם.</p>
+            </div>
+
+            <button class="btn-submit" onclick="executeSaveSequence()">שמור ערך באנציקלופדיה</button>
+        </section>
     </div>
 
-    <div id="articleDisplay">
-        <h1 id="displayTitle" class="display-title"></h1>
-        <div id="displayContent" class="display-content"></div>
+    <div id="viewScreen">
+        <h1 id="viewTitle" class="article-header"></h1>
+        <div id="viewBody" class="article-body"></div>
         
-        <div class="admin-bar">
-            <button class="admin-btn btn-back" onclick="window.location.reload()">חזור לדף הראשי</button>
-            <button class="admin-btn btn-edit" onclick="runEdit()">עריכה</button>
-            <button class="admin-btn btn-delete" onclick="runDelete()">מחיקה</button>
+        <div class="admin-controls">
+            <button class="control-btn" style="background-color: #78909c;" onclick="window.location.reload()">חזור לראשי</button>
+            <button class="control-btn" style="background-color: #fb8c00;" onclick="initiateEditMode()">עריכת נתונים</button>
+            <button class="control-btn" style="background-color: #e53935;" onclick="initiateDeleteMode()">מחיקת ערך</button>
         </div>
     </div>
 </div>
 
 <script>
-    const DB_PREFIX = 'ISRAEL_NATURE_';
-    const CODE = "5439";
-    let activeTitle = "";
-    let isEditMode = false;
+    // משתני מערכת גלובליים - לא מצומצמים
+    const DATABASE_KEY = 'ISRAEL_NATURE_ENCYCLOPEDIA_V1';
+    const SECURITY_CODE = "5439";
+    let activeArticleTitle = "";
+    let isEditStatus = false;
 
-    // חיפוש
-    function handleSearch() {
-        const q = document.getElementById('searchInput').value.trim().toLowerCase();
-        const box = document.getElementById('suggestionsBox');
-        box.innerHTML = '';
-        if (!q) { box.style.display = 'none'; return; }
+    // 1. פונקציית חיפוש מפורטת - לא מקוצרת
+    function runDetailedSearch() {
+        const input = document.getElementById('mainSearchInput');
+        const query = input.value.trim().toLowerCase();
+        const dropdown = document.getElementById('searchDropdown');
+        
+        dropdown.innerHTML = ''; 
 
-        let found = false;
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k.startsWith(DB_PREFIX)) {
-                const t = k.replace(DB_PREFIX, '');
-                if (t.toLowerCase().includes(q)) {
-                    const d = document.createElement('div');
-                    d.className = 'suggestion-item';
-                    d.innerText = t;
-                    d.onclick = () => { displayArticle(t); };
-                    box.appendChild(d);
-                    found = true;
-                }
-            }
-        }
-        box.style.display = found ? 'block' : 'none';
-    }
-
-    // הצגה
-    function displayArticle(t) {
-        activeTitle = t;
-        const data = JSON.parse(localStorage.getItem(DB_PREFIX + t));
-        document.getElementById('editorScreen').style.display = 'none';
-        document.getElementById('articleDisplay').style.display = 'block';
-        document.getElementById('displayTitle').innerText = t;
-
-        let txt = data.content;
-        if (data.imgs) {
-            data.imgs.forEach((src, i) => {
-                txt = txt.split(`[תמונה${i+1}]`).join(`<img src="${src}" class="wiki-image">`);
-            });
-        }
-        document.getElementById('displayContent').innerHTML = txt.replace(/\n/g, '<br>');
-    }
-
-    // שמירה עם הגנה משמות כפולים
-    async function processSave() {
-        const t = document.getElementById('titleInput').value.trim();
-        const c = document.getElementById('contentInput').value.trim();
-        const files = document.getElementById('imageInput').files;
-
-        if (!t || !c) return alert("נא למלא שם ותוכן");
-
-        // בדיקה אם השם קיים (רק אם אנחנו לא במצב עריכה של אותו ערך)
-        if (!isEditMode && localStorage.getItem(DB_PREFIX + t)) {
-            alert("שגיאה: כבר קיים ערך בשם זה. בחר שם אחר או ערוך את הערך הקיים.");
+        if (query.length === 0) {
+            dropdown.style.display = 'none';
             return;
         }
 
-        const pass = prompt("הזן קוד הרשאה לביצוע הפעולה:");
-        if (pass !== CODE) return alert("קוד שגוי");
-
-        let imgs = [];
-        if (files.length > 0) {
-            for (let f of files) imgs.push(await compress(f));
-        } else if (isEditMode) {
-            imgs = JSON.parse(localStorage.getItem(DB_PREFIX + t)).imgs;
-        }
-
-        try {
-            localStorage.setItem(DB_PREFIX + t, JSON.stringify({ content: c, imgs: imgs }));
-            alert("הערך נשמר בהצלחה!");
-            window.location.reload();
-        } catch (e) { alert("חריגה מהזיכרון - צמצם בתמונות"); }
-    }
-
-    function runEdit() {
-        if (prompt("קוד מנהל לעריכה:") !== CODE) return alert("קוד שגוי");
-        isEditMode = true;
-        const data = JSON.parse(localStorage.getItem(DB_PREFIX + activeTitle));
-        document.getElementById('articleDisplay').style.display = 'none';
-        document.getElementById('editorScreen').style.display = 'block';
-        document.getElementById('titleInput').value = activeTitle;
-        document.getElementById('titleInput').disabled = true; // מונע שינוי שם בעריכה למניעת כפילויות
-        document.getElementById('contentInput').value = data.content;
-        document.getElementById('formHeader').innerText = "עריכת ערך: " + activeTitle;
-    }
-
-    function runDelete() {
-        if (prompt("קוד מנהל למחיקה:") !== CODE) return alert("קוד שגוי");
-        if (confirm("למחוק את " + activeTitle + "?")) {
-            localStorage.removeItem(DB_PREFIX + activeTitle);
-            window.location.reload();
-        }
-    }
-
-    function compress(file) {
-        return new Promise(res => {
-            const r = new FileReader();
-            r.readAsDataURL(file);
-            r.onload = e => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const w = 800;
-                    canvas.width = w;
-                    canvas.height = img.height * (w / img.width);
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, canvas.height);
-                    res(canvas.toDataURL('image/jpeg', 0.6));
+        let matchFound = false;
+        // לולאה מפורטת על כל ה-LocalStorage
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            
+            if (key.startsWith(DATABASE_KEY)) {
+                const title = key.replace(DATABASE_KEY, '');
+                
+                if (title.toLowerCase().includes(query)) {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.innerText = title;
+                    item.onclick = function() {
+                        renderArticle(title);
+                    };
+                    dropdown.appendChild(item);
+                    matchFound = true;
                 }
             }
+        }
+
+        if (matchFound) {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    // 2. פונקציית רינדור הערך - מפורטת מאוד
+    function renderArticle(title) {
+        activeArticleTitle = title;
+        const dataString = localStorage.getItem(DATABASE_KEY + title);
+        const dataObj = JSON.parse(dataString);
+
+        document.getElementById('mainScreen').style.display = 'none';
+        document.getElementById('viewScreen').style.display = 'block';
+        document.getElementById('viewTitle').innerText = title;
+
+        let contentHtml = dataObj.content;
+        
+        // עיבוד מורכב של תמונות בתוך הטקסט
+        if (dataObj.images && dataObj.images.length > 0) {
+            for (let i = 0; i < dataObj.images.length; i++) {
+                const placeholder = "[תמונה" + (i + 1) + "]";
+                const imageTag = '<img src="' + dataObj.images[i] + '" class="article-img" alt="תמונה של ' + title + '">';
+                contentHtml = contentHtml.split(placeholder).join(imageTag);
+            }
+        }
+
+        // המרת ירידות שורה ל-HTML
+        contentHtml = contentHtml.replace(/\n/g, '<br>');
+        document.getElementById('viewBody').innerHTML = contentHtml;
+    }
+
+    // 3. פונקציית שמירה מלאה עם בדיקות קפדניות
+    async function executeSaveSequence() {
+        const titleInput = document.getElementById('articleTitleInput').value.trim();
+        const contentInput = document.getElementById('articleContentInput').value.trim();
+        const imageFiles = document.getElementById('articleImagesInput').files;
+
+        // בדיקה 1: שדות חובה
+        if (titleInput === "" || contentInput === "") {
+            alert("שגיאה: לא ניתן לשמור ערך ללא שם ותוכן.");
+            return;
+        }
+
+        // בדיקה 2: מניעת כפילויות בשמות
+        const checkExisting = localStorage.getItem(DATABASE_KEY + titleInput);
+        if (checkExisting && isEditStatus === false) {
+            alert("שגיאה חמורה: כבר קיים ערך בשם '" + titleInput + "'. בחר שם אחר כדי לא למחוק את הקיים.");
+            return;
+        }
+
+        // בדיקה 3: אימות קוד מנהל
+        const pin = prompt("פעולה זו דורשת אימות קוד מנהל:");
+        if (pin !== SECURITY_CODE) {
+            alert("הקוד שהזנת שגוי. הגישה נדחתה.");
+            return;
+        }
+
+        // עיבוד תמונות - תהליך ארוך
+        let finalImages = [];
+        if (imageFiles.length > 0) {
+            for (let i = 0; i < imageFiles.length; i++) {
+                const compressedBase64 = await convertAndResize(imageFiles[i]);
+                finalImages.push(compressedBase64);
+            }
+        } else if (isEditStatus) {
+            // שמירה על תמונות ישנות אם אנחנו בעריכה
+            const oldData = JSON.parse(localStorage.getItem(DATABASE_KEY + titleInput));
+            finalImages = oldData.images;
+        }
+
+        // אובייקט הנתונים הסופי
+        const encyclopediaEntry = {
+            content: contentInput,
+            images: finalImages,
+            timestamp: new Date().toISOString()
+        };
+
+        // שמירה פיזית ל-LocalStorage
+        try {
+            localStorage.setItem(DATABASE_KEY + titleInput, JSON.stringify(encyclopediaEntry));
+            alert("הערך '" + titleInput + "' נשמר בהצלחה בבסיס הנתונים!");
+            window.location.reload();
+        } catch (error) {
+            alert("שגיאה: חריגה ממכסת הזיכרון. נסה להעלות פחות תמונות או תמונות קטנות יותר.");
+        }
+    }
+
+    // 4. פונקציית עיבוד תמונה מפורטת - לא מקוצרת
+    function convertAndResize(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxWidth = 900;
+                    const scale = maxWidth / img.width;
+                    
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scale;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // המרה ל-JPEG באיכות בינונית-גבוהה
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl);
+                };
+            };
         });
     }
+
+    // 5. ניהול עריכה ומחיקה מורחב
+    function initiateEditMode() {
+        const pin = prompt("הזן קוד מנהל לכניסה למצב עריכה:");
+        if (pin === SECURITY_CODE) {
+            const data = JSON.parse(localStorage.getItem(DATABASE_KEY + activeArticleTitle));
+            
+            document.getElementById('viewScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            
+            document.getElementById('articleTitleInput').value = activeArticleTitle;
+            document.getElementById('articleTitleInput').disabled = true; // הגנה על השם
+            document.getElementById('articleContentInput').value = data.content;
+            document.getElementById('editorHeading').innerText = "עריכת ערך קיים: " + activeArticleTitle;
+            
+            isEditStatus = true;
+            window.scrollTo(0,0);
+        } else {
+            alert("קוד שגוי.");
+        }
+    }
+
+    function initiateDeleteMode() {
+        const pin = prompt("הזן קוד מנהל לאישור מחיקה סופית:");
+        if (pin === SECURITY_CODE) {
+            const confirmAction = confirm("האם אתה בטוח שברצונך למחוק לצמיתות את '" + activeArticleTitle + "'? לא ניתן לבטל פעולה זו.");
+            if (confirmAction) {
+                localStorage.removeItem(DATABASE_KEY + activeArticleTitle);
+                alert("הערך נמחק בהצלחה.");
+                window.location.reload();
+            }
+        } else {
+            alert("קוד שגוי.");
+        }
+    }
 </script>
+
 </body>
 </html>
